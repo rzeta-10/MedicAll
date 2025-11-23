@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="mb-4">Find a Doctor</h2>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-6">
+                <input type="text" name="search" class="form-control" placeholder="Search by doctor name..."
+                    value="{{ search }}">
+            </div>
+            <div class="col-md-4">
+                <select name="department_id" class="form-select">
+                    <option value="">All Departments</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept.id }}" {% if selected_dept|int==dept.id %}selected{% endif %}>{{ dept.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Search</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    {% for doctor in doctors %}
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Dr. {{ doctor.name }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">{{ doctor.doctor_profile.department.name }}</h6>
+                <p class="card-text">
+                    <strong>Qualification:</strong> {{ doctor.doctor_profile.qualification }}<br>
+                    {% if doctor.doctor_profile.bio %}
+                    <small>{{ doctor.doctor_profile.bio }}</small>
+                    {% endif %}
+                </p>
+                <a href="{{ url_for('patient.book_doctor', doctor_id=doctor.id) }}" class="btn btn-success">Check
+                    Availability & Book</a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12 text-center">
+        <p>No doctors found matching your criteria.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

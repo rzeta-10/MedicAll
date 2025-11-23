@@ -44,6 +44,9 @@ app.register_blueprint(admin_blueprint)
 from routes.doctor import doctor as doctor_blueprint
 app.register_blueprint(doctor_blueprint)
 
+from routes.patient import patient as patient_blueprint
+app.register_blueprint(patient_blueprint)
+
 if __name__ == '__main__':
     app.run(debug=app.config['DEBUG'])
 
