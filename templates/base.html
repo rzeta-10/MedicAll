@@ -92,7 +92,7 @@
                     {% if current_user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link"
-                            href="{% if current_user.role.name == 'ADMIN' %}{{ url_for('admin.dashboard') }}{% elif current_user.role.name == 'DOCTOR' %}{{ url_for('doctor.dashboard') }}{% else %}{{ url_for('patient.dashboard') }}{% endif %}">Dashboard</a>
+                            href="{% if current_user.role == 'ADMIN' %}{{ url_for('admin.dashboard') }}{% elif current_user.role == 'DOCTOR' %}{{ url_for('doctor.dashboard') }}{% else %}{{ url_for('patient.dashboard') }}{% endif %}">Dashboard</a>
                     </li>
                     <li class="nav-item">
                         <span class="nav-link">{{ current_user.name }}</span>
