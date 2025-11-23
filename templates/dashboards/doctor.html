@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-success text-white">Doctor Dashboard</div>
+    <div class="card-body">
+        <h5>Welcome, {{ current_user.name }}</h5>
+        <p>This is the protected Doctor area.</p>
+        <hr>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card bg-light mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">My Appointments</h5>
+                        <p class="card-text">View upcoming appointments.</p>
+                        <a href="#" class="btn btn-primary">View</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card bg-light mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Availability</h5>
+                        <p class="card-text">Update your schedule.</p>
+                        <a href="#" class="btn btn-primary">Update</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
