@@ -6,7 +6,7 @@
         <h4 class="mb-0">Doctor Dashboard</h4>
     </div>
     <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
             <h5>Welcome, {{ current_user.name }}</h5>
             <a href="{{ url_for('doctor.availability') }}" class="btn btn-outline-success">Manage Availability</a>
         </div>
@@ -59,26 +59,27 @@
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="5" class="text-center">No upcoming appointments.</td>
+                        <td colspan="5" class="text-center text-muted py-4">No upcoming appointments.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
+</div>
 
-    <div class="row mt-4">
-        <div class="col-md-6 offset-md-3">
-            <div class="card">
-                <div class="card-header">
-                    Appointment Status Overview
-                </div>
-                <div class="card-body">
-                    <canvas id="statusChart"></canvas>
-                </div>
+<div class="row mt-4">
+    <div class="col-12 col-lg-8 offset-lg-2">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Appointment Status Overview</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="statusChart"></canvas>
             </div>
         </div>
     </div>
+</div>
 </div>
 
 <script>

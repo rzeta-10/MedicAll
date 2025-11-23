@@ -3,36 +3,36 @@
 {% block content %}
 <div class="card mb-4">
     <div class="card-header bg-danger text-white">
-        <h4 class="mb-0">Admin Dashboard</h4>
+        <h4 class="mb-0"> Admin Dashboard</h4>
     </div>
     <div class="card-body">
         <h5>Welcome, {{ current_user.name }}</h5>
-        <p>Manage your hospital system from here.</p>
+        <p class="text-muted">Manage your hospital system from here.</p>
 
-        <div class="row mt-4">
-            <div class="col-md-4">
-                <div class="card text-center bg-light mb-3">
+        <div class="row mt-4 g-3">
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="card text-center bg-light mb-3 stat-card">
                     <div class="card-body">
-                        <h3 class="card-title text-primary">{{ total_doctors }}</h3>
-                        <p class="card-text">Total Doctors</p>
+                        <h3 class="card-title text-primary mb-2">{{ total_doctors }}</h3>
+                        <p class="card-text text-muted mb-3">Total Doctors</p>
                         <a href="{{ url_for('admin.doctors') }}" class="btn btn-primary btn-sm">Manage Doctors</a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card text-center bg-light mb-3">
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="card text-center bg-light mb-3 stat-card">
                     <div class="card-body">
-                        <h3 class="card-title text-success">{{ total_patients }}</h3>
-                        <p class="card-text">Total Patients</p>
+                        <h3 class="card-title text-success mb-2">{{ total_patients }}</h3>
+                        <p class="card-text text-muted mb-3">Total Patients</p>
                         <a href="{{ url_for('admin.patients') }}" class="btn btn-success btn-sm">Manage Patients</a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card text-center bg-light mb-3">
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="card text-center bg-light mb-3 stat-card">
                     <div class="card-body">
-                        <h3 class="card-title text-info">{{ total_appointments }}</h3>
-                        <p class="card-text">Total Appointments</p>
+                        <h3 class="card-title text-info mb-2">{{ total_appointments }}</h3>
+                        <p class="card-text text-muted mb-3">Total Appointments</p>
                         <a href="{{ url_for('admin.appointments') }}" class="btn btn-info btn-sm text-white">View
                             All</a>
                     </div>
@@ -40,15 +40,16 @@
             </div>
         </div>
     </div>
-    <div class="row mt-4">
-        <div class="col-md-8 offset-md-2">
-            <div class="card">
-                <div class="card-header">
-                    Appointments by Department
-                </div>
-                <div class="card-body">
-                    <canvas id="deptChart"></canvas>
-                </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12 col-lg-10 offset-lg-1">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Appointments by Department</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="deptChart"></canvas>
             </div>
         </div>
     </div>
