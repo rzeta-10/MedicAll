@@ -38,6 +38,9 @@ app.register_blueprint(auth_blueprint)
 from routes.main import main as main_blueprint
 app.register_blueprint(main_blueprint)
 
+from routes.admin import admin as admin_blueprint
+app.register_blueprint(admin_blueprint)
+
 if __name__ == '__main__':
     app.run(debug=app.config['DEBUG'])
 
