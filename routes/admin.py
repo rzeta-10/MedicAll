@@ -13,13 +13,26 @@ def require_admin():
 
 @admin.route('/dashboard')
 def dashboard():
-    doctor_count = User.query.filter_by(role=Role.DOCTOR).count()
-    patient_count = User.query.filter_by(role=Role.PATIENT).count()
-    appointment_count = Appointment.query.count()
+    # Stats
+    total_doctors = User.query.filter_by(role=Role.DOCTOR).count()
+    total_patients = User.query.filter_by(role=Role.PATIENT).count()
+    total_appointments = Appointment.query.count()
+    
+    # Chart Data: Appointments per Department
+    dept_stats = db.session.query(Department.name, db.func.count(Appointment.id))\
+        .join(DoctorProfile, DoctorProfile.department_id == Department.id)\
+        .join(Appointment, Appointment.doctor_id == DoctorProfile.id)\
+        .group_by(Department.name).all()
+        
+    dept_labels = [stat[0] for stat in dept_stats]
+    dept_data = [stat[1] for stat in dept_stats]
+    
     return render_template('dashboards/admin.html', 
-                         doctor_count=doctor_count,
-                         patient_count=patient_count,
-                         appointment_count=appointment_count)
+                         total_doctors=total_doctors,
+                         total_patients=total_patients,
+                         total_appointments=total_appointments,
+                         dept_labels=dept_labels,
+                         dept_data=dept_data)
 
 @admin.route('/doctors')
 def doctors():

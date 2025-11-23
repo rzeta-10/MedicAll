@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from models import db, User, Appointment, DoctorAvailability, Role, AppointmentStatus, Department, DoctorProfile
 from datetime import datetime
+from sqlalchemy import func
 
 patient = Blueprint('patient', __name__, url_prefix='/patient')
 
@@ -15,7 +16,20 @@ def require_patient():
 def dashboard():
     appointments = Appointment.query.filter_by(patient_id=current_user.patient_profile.id)\
         .order_by(Appointment.appointment_start.desc()).all()
-    return render_template('dashboards/patient.html', appointments=appointments)
+    
+    # Chart Data: Appointments over time (by month)
+    history_stats = db.session.query(func.strftime('%Y-%m', Appointment.appointment_start), func.count(Appointment.id))\
+        .filter(Appointment.patient_id == current_user.patient_profile.id)\
+        .group_by(func.strftime('%Y-%m', Appointment.appointment_start))\
+        .order_by(func.strftime('%Y-%m', Appointment.appointment_start)).all()
+        
+    history_labels = [stat[0] for stat in history_stats]
+    history_data = [stat[1] for stat in history_stats]
+    
+    return render_template('dashboards/patient.html', 
+                         appointments=appointments,
+                         history_labels=history_labels,
+                         history_data=history_data)
 
 @patient.route('/profile', methods=['GET', 'POST'])
 def profile():

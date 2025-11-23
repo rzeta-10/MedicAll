@@ -15,12 +15,23 @@ def require_doctor():
 def dashboard():
     today = datetime.now().date()
     # Get upcoming appointments
-    appointments = Appointment.query.join(User, Appointment.doctor_id == User.doctor_profile.property.mapper.class_.id)\
+    appointments = Appointment.query.filter_by(
+        doctor_id=current_user.doctor_profile.id,
+        status=AppointmentStatus.BOOKED
+    ).order_by(Appointment.appointment_start).all()
+    
+    # Chart Data: Appointment Status Distribution
+    status_stats = db.session.query(Appointment.status, db.func.count(Appointment.id))\
         .filter(Appointment.doctor_id == current_user.doctor_profile.id)\
-        .filter(Appointment.appointment_start >= datetime.now())\
-        .order_by(Appointment.appointment_start.asc()).all()
+        .group_by(Appointment.status).all()
         
-    return render_template('dashboards/doctor.html', appointments=appointments)
+    status_labels = [stat[0] for stat in status_stats]
+    status_data = [stat[1] for stat in status_stats]
+    
+    return render_template('dashboards/doctor.html', 
+                         appointments=appointments,
+                         status_labels=status_labels,
+                         status_data=status_data)
 
 @doctor.route('/appointments/<int:id>/status', methods=['POST'])
 def update_status(id):

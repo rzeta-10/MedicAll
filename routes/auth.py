@@ -9,10 +9,10 @@ auth = Blueprint('auth', __name__)
 def login():
     if current_user.is_authenticated:
         if current_user.role == Role.ADMIN:
-            return redirect(url_for('main.admin_dashboard'))
+            return redirect(url_for('admin.dashboard'))
         elif current_user.role == Role.DOCTOR:
-            return redirect(url_for('main.doctor_dashboard'))
-        return redirect(url_for('main.patient_dashboard'))
+            return redirect(url_for('doctor.dashboard'))
+        return redirect(url_for('patient.dashboard'))
 
     if request.method == 'POST':
         email = request.form.get('email')
@@ -23,10 +23,10 @@ def login():
         if user and user.check_password(password):
             login_user(user)
             if user.role == Role.ADMIN:
-                return redirect(url_for('main.admin_dashboard'))
+                return redirect(url_for('admin.dashboard'))
             elif user.role == Role.DOCTOR:
-                return redirect(url_for('main.doctor_dashboard'))
-            return redirect(url_for('main.patient_dashboard'))
+                return redirect(url_for('doctor.dashboard'))
+            return redirect(url_for('patient.dashboard'))
         
         flash('Invalid email or password')
     
@@ -35,7 +35,7 @@ def login():
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('main.patient_dashboard'))
+        return redirect(url_for('patient.dashboard'))
         
     if request.method == 'POST':
         email = request.form.get('email')
@@ -64,7 +64,7 @@ def register():
         db.session.commit()
         
         login_user(new_user)
-        return redirect(url_for('main.patient_dashboard'))
+        return redirect(url_for('patient.dashboard'))
         
     return render_template('auth/register.html')
 
