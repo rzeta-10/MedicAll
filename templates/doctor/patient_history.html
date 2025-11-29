@@ -41,6 +41,11 @@
             <h6 class="card-title text-muted">Notes</h6>
             <p class="card-text small">{{ appt.treatment.notes }}</p>
             {% endif %}
+
+            {% if appt.treatment.doctor_notes %}
+            <h6 class="card-title text-info">Private Notes <small class="text-muted">(Only visible to you)</small></h6>
+            <p class="card-text small fst-italic">{{ appt.treatment.doctor_notes }}</p>
+            {% endif %}
         </div>
     </div>
     {% endif %}

@@ -61,21 +61,28 @@ def create_appointment():
     if not slot:
         return jsonify({'error': 'Slot not found'}), 404
         
-    # Check for existing booking
-    existing = Appointment.query.filter_by(
-        doctor_id=slot.doctor_id,
-        appointment_start=datetime.combine(slot.date, slot.start_time)
-    ).first()
+    # check overlap
+    start_dt = datetime.combine(slot.date, slot.start_time)
+    end_dt = datetime.combine(slot.date, slot.end_time)
     
-    if existing and existing.status != AppointmentStatus.CANCELLED:
-        return jsonify({'error': 'Slot already booked'}), 409
+    existing = Appointment.query.filter_by(doctor_id=slot.doctor_id)\
+        .filter(Appointment.status != AppointmentStatus.CANCELLED)\
+        .filter(
+            db.and_(
+                Appointment.appointment_start < end_dt,
+                Appointment.appointment_end > start_dt
+            )
+        ).first()
+    
+    if existing:
+        return jsonify({'error': 'Slot overlaps with an existing appointment'}), 409
         
     try:
         appointment = Appointment(
             patient_id=current_user.patient_profile.id,
             doctor_id=slot.doctor_id,
-            appointment_start=datetime.combine(slot.date, slot.start_time),
-            appointment_end=datetime.combine(slot.date, slot.end_time),
+            appointment_start=start_dt,
+            appointment_end=end_dt,
             reason=reason,
             status=AppointmentStatus.BOOKED
         )

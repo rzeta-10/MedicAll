@@ -1,29 +1,28 @@
+// email regex check
 function validateEmail(email) {
-    const pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return pattern.test(email);
+    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return re.test(email);
 }
 
+// basic phone validation
 function validatePhone(phone) {
-    const cleaned = phone.replace(/[\s\-\(\)\+]/g, '');
-    return /^\d{10,15}$/.test(cleaned);
+    const clean = phone.replace(/[\s\-\(\)\+]/g, '');
+    return /^\d{10,15}$/.test(clean);
 }
 
-function validatePassword(password) {
-    if (!password || password.length < 6) {
+// password strength check
+function validatePassword(pwd) {
+    if (!pwd || pwd.length < 6) {
         return {
             valid: false,
-            message: 'Password must be at least 6 characters long',
+            message: 'Password must be at least 6 characters',
             strength: 'weak'
         };
     }
 
     let strength = 'weak';
-    if (password.length >= 8) {
-        strength = 'medium';
-    }
-    if (password.length >= 12 && /[A-Z]/.test(password) && /[0-9]/.test(password)) {
-        strength = 'strong';
-    }
+    if (pwd.length >= 8) strength = 'medium';
+    if (pwd.length >= 12 && /[A-Z]/.test(pwd) && /[0-9]/.test(pwd)) strength = 'strong';
 
     return {
         valid: true,
@@ -32,107 +31,103 @@ function validatePassword(password) {
     };
 }
 
-function validatePastDate(dateStr) {
-    if (!dateStr) return false;
-    const date = new Date(dateStr);
+function validatePastDate(d) {
+    if (!d) return false;
+    const date = new Date(d);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return date <= today;
 }
 
-function validateFutureDate(dateStr) {
-    if (!dateStr) return false;
-    const date = new Date(dateStr);
+function validateFutureDate(d) {
+    if (!d) return false;
+    const date = new Date(d);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return date >= today;
 }
 
-function validateTimeRange(startTime, endTime) {
-    if (!startTime || !endTime) return false;
-    return endTime > startTime;
+function validateTimeRange(start, end) {
+    if (!start || !end) return false;
+    return end > start;
 }
 
-function showError(field, message) {
-    hideError(field);
+// ui helpers
+function showError(el, msg) {
+    hideError(el);
+    el.classList.add('is-invalid');
+    el.classList.remove('is-valid');
 
-    field.classList.add('is-invalid');
-    field.classList.remove('is-valid');
-
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'invalid-feedback';
-    errorDiv.textContent = message;
-    field.parentNode.appendChild(errorDiv);
+    const err = document.createElement('div');
+    err.className = 'invalid-feedback';
+    err.textContent = msg;
+    el.parentNode.appendChild(err);
 }
 
-function hideError(field) {
-    field.classList.remove('is-invalid');
-
-    const existingError = field.parentNode.querySelector('.invalid-feedback');
-    if (existingError) {
-        existingError.remove();
-    }
+function hideError(el) {
+    el.classList.remove('is-invalid');
+    const existing = el.parentNode.querySelector('.invalid-feedback');
+    if (existing) existing.remove();
 }
 
-function showSuccess(field) {
-    hideError(field);
-    field.classList.add('is-valid');
-    field.classList.remove('is-invalid');
+function showSuccess(el) {
+    hideError(el);
+    el.classList.add('is-valid');
+    el.classList.remove('is-invalid');
 }
 
-function clearValidation(field) {
-    field.classList.remove('is-valid', 'is-invalid');
-    const existingError = field.parentNode.querySelector('.invalid-feedback');
-    if (existingError) {
-        existingError.remove();
-    }
+function clearValidation(el) {
+    el.classList.remove('is-valid', 'is-invalid');
+    const existing = el.parentNode.querySelector('.invalid-feedback');
+    if (existing) existing.remove();
 }
 
+// main validation logic
 function validateField(field) {
-    const value = field.value.trim();
+    const val = field.value.trim();
     const type = field.type;
     const name = field.name;
 
-    if (field.hasAttribute('required') && !value) {
+    if (field.hasAttribute('required') && !val) {
         showError(field, 'This field is required');
         return false;
     }
 
-    if (value) {
+    if (val) {
         if (type === 'email' || name === 'email') {
-            if (!validateEmail(value)) {
+            if (!validateEmail(val)) {
                 showError(field, 'Please enter a valid email address');
                 return false;
             }
         } else if (type === 'tel' || name === 'phone') {
-            if (!validatePhone(value)) {
+            if (!validatePhone(val)) {
                 showError(field, 'Please enter a valid phone number (10-15 digits)');
                 return false;
             }
         } else if (type === 'password') {
-            const result = validatePassword(value);
-            if (!result.valid) {
-                showError(field, result.message);
+            const res = validatePassword(val);
+            if (!res.valid) {
+                showError(field, res.message);
                 return false;
             }
         } else if (type === 'date') {
-            if (name === 'dob' && !validatePastDate(value)) {
+            if (name === 'dob' && !validatePastDate(val)) {
                 showError(field, 'Date of birth cannot be in the future');
                 return false;
-            } else if (name === 'date' && !validateFutureDate(value)) {
+            } else if (name === 'date' && !validateFutureDate(val)) {
                 showError(field, 'Date must be today or in the future');
                 return false;
             }
         }
 
-        const minLength = field.getAttribute('minlength');
-        if (minLength && value.length < parseInt(minLength)) {
-            showError(field, `Minimum length is ${minLength} characters`);
+        const min = field.getAttribute('minlength');
+        if (min && val.length < parseInt(min)) {
+            showError(field, `Minimum length is ${min} characters`);
             return false;
         }
     }
 
-    if (value) {
+    if (val) {
         showSuccess(field);
     } else {
         clearValidation(field);
@@ -140,25 +135,21 @@ function validateField(field) {
     return true;
 }
 
-function initFormValidation(formSelector) {
-    const form = typeof formSelector === 'string'
-        ? document.querySelector(formSelector)
-        : formSelector;
+// init
+function initFormValidation(selector) {
+    const form = typeof selector === 'string'
+        ? document.querySelector(selector)
+        : selector;
 
     if (!form) return;
 
     const fields = form.querySelectorAll('input, textarea, select');
-    fields.forEach(field => {
-        field.addEventListener('blur', function () {
+    fields.forEach(f => {
+        f.addEventListener('blur', function () {
             validateField(this);
         });
 
-        field.addEventListener('focus', function () {
-            if (this.classList.contains('is-invalid')) {
-            }
-        });
-
-        field.addEventListener('input', function () {
+        f.addEventListener('input', function () {
             if (this.classList.contains('is-invalid') || this.classList.contains('is-valid')) {
                 validateField(this);
             }
@@ -166,29 +157,27 @@ function initFormValidation(formSelector) {
     });
 
     form.addEventListener('submit', function (e) {
-        let isValid = true;
+        let valid = true;
 
-        fields.forEach(field => {
-            if (!validateField(field)) {
-                isValid = false;
-            }
+        fields.forEach(f => {
+            if (!validateField(f)) valid = false;
         });
 
-        const startTime = form.querySelector('[name="start_time"]');
-        const endTime = form.querySelector('[name="end_time"]');
-        if (startTime && endTime && startTime.value && endTime.value) {
-            if (!validateTimeRange(startTime.value, endTime.value)) {
-                showError(endTime, 'End time must be after start time');
-                isValid = false;
+        const start = form.querySelector('[name="start_time"]');
+        const end = form.querySelector('[name="end_time"]');
+        if (start && end && start.value && end.value) {
+            if (!validateTimeRange(start.value, end.value)) {
+                showError(end, 'End time must be after start time');
+                valid = false;
             }
         }
 
-        if (!isValid) {
+        if (!valid) {
             e.preventDefault();
-            const firstError = form.querySelector('.is-invalid');
-            if (firstError) {
-                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                firstError.focus();
+            const err = form.querySelector('.is-invalid');
+            if (err) {
+                err.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                err.focus();
             }
         }
     });
@@ -196,7 +185,5 @@ function initFormValidation(formSelector) {
 
 document.addEventListener('DOMContentLoaded', function () {
     const forms = document.querySelectorAll('form');
-    forms.forEach(form => {
-        initFormValidation(form);
-    });
+    forms.forEach(f => initFormValidation(f));
 });

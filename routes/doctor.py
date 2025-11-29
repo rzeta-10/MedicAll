@@ -15,24 +15,24 @@ def require_doctor():
 @doctor.route('/dashboard')
 def dashboard():
     today = datetime.now().date()
-    # Get upcoming appointments
+    # fetch upcoming appointments
     appointments = Appointment.query.filter_by(
         doctor_id=current_user.doctor_profile.id,
         status=AppointmentStatus.BOOKED
     ).order_by(Appointment.appointment_start).all()
     
-    # Chart Data: Appointment Status Distribution
-    status_stats = db.session.query(Appointment.status, db.func.count(Appointment.id))\
+    # chart data: status
+    stats = db.session.query(Appointment.status, db.func.count(Appointment.id))\
         .filter(Appointment.doctor_id == current_user.doctor_profile.id)\
         .group_by(Appointment.status).all()
         
-    status_labels = [stat[0] for stat in status_stats]
-    status_data = [stat[1] for stat in status_stats]
+    labels = [s[0] for s in stats]
+    data = [s[1] for s in stats]
     
     return render_template('dashboards/doctor.html', 
                          appointments=appointments,
-                         status_labels=status_labels,
-                         status_data=status_data)
+                         status_labels=labels,
+                         status_data=data)
 
 @doctor.route('/appointments/<int:id>/status', methods=['POST'])
 def update_status(id):
@@ -66,13 +66,13 @@ def treatment(id):
         diagnosis = sanitize_input(request.form.get('diagnosis'))
         prescription = sanitize_input(request.form.get('prescription'))
         notes = sanitize_input(request.form.get('notes'))
-        doctor_notes = sanitize_input(request.form.get('doctor_notes'))
+        doc_notes = sanitize_input(request.form.get('doctor_notes'))
         
-        # Validate required fields
+        # basic checks
         try:
             validate_required_fields(request.form, ['diagnosis', 'prescription'])
             
-            # Minimum length validation
+            # ensure enough detail
             if len(diagnosis) < 10:
                 raise ValidationError("Diagnosis must be at least 10 characters")
             if len(prescription) < 10:
@@ -89,9 +89,9 @@ def treatment(id):
         treatment.diagnosis = diagnosis
         treatment.prescription = prescription
         treatment.notes = notes
-        treatment.doctor_notes = doctor_notes
+        treatment.doctor_notes = doc_notes
         
-        # Auto-complete appointment if adding treatment
+        # complete appointment automatically
         if appointment.can_transition_to(AppointmentStatus.COMPLETED):
             appointment.status = AppointmentStatus.COMPLETED
             
@@ -107,10 +107,30 @@ def patient_history(id):
     if not patient:
         return "Not Found", 404
     
+    # Verify doctor has access to this patient (has at least one appointment)
+    has_access = Appointment.query.filter_by(
+        doctor_id=current_user.doctor_profile.id,
+        patient_id=id
+    ).first()
+    
+    if not has_access:
+        return "Access Denied", 403
+    
     appointments = Appointment.query.filter_by(patient_id=id)\
         .order_by(Appointment.appointment_start.desc()).all()
         
     return render_template('doctor/patient_history.html', patient=patient, appointments=appointments)
+
+@doctor.route('/patients')
+def my_patients():
+    # Get distinct patients who have had appointments with this doctor
+    # Using a join to get patient details
+    patients = db.session.query(PatientProfile)\
+        .join(Appointment, Appointment.patient_id == PatientProfile.id)\
+        .filter(Appointment.doctor_id == current_user.doctor_profile.id)\
+        .distinct().all()
+        
+    return render_template('doctor/my_patients.html', patients=patients)
 
 @doctor.route('/availability', methods=['GET', 'POST'])
 def availability():
@@ -138,15 +158,9 @@ def availability():
                 doctor_id=current_user.doctor_profile.id,
                 date=avail_date
             ).filter(
-                db.or_(
-                    db.and_(
-                        DoctorAvailability.start_time <= start_time,
-                        DoctorAvailability.end_time > start_time
-                    ),
-                    db.and_(
-                        DoctorAvailability.start_time < end_time,
-                        DoctorAvailability.end_time >= end_time
-                    )
+                db.and_(
+                    DoctorAvailability.start_time < end_time,
+                    DoctorAvailability.end_time > start_time
                 )
             ).first()
             

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-0">My Patients</h3>
+        <p class="text-muted small mb-0">List of patients you have treated</p>
+    </div>
+    <a href="{{ url_for('doctor.dashboard') }}" class="btn btn-outline-secondary rounded-pill">Back to Dashboard</a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4 py-3 text-uppercase text-muted small fw-bold">Name</th>
+                        <th class="py-3 text-uppercase text-muted small fw-bold">Contact</th>
+                        <th class="py-3 text-uppercase text-muted small fw-bold">Gender</th>
+                        <th class="pe-4 py-3 text-uppercase text-muted small fw-bold text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for patient in patients %}
+                    <tr>
+                        <td class="ps-4 py-3 fw-bold text-dark">{{ patient.user.name }}</td>
+                        <td class="py-3 text-muted">{{ patient.phone }}</td>
+                        <td class="py-3 text-muted">{{ patient.gender }}</td>
+                        <td class="pe-4 py-3 text-end">
+                            <a href="{{ url_for('doctor.patient_history', id=patient.id) }}" class="btn btn-sm btn-outline-primary rounded-pill">
+                                View History
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5 text-muted">No patients found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

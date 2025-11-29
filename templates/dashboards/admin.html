@@ -1,25 +1,26 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="mb-4">
-    <h2 class="fw-bold text-dark">Dashboard</h2>
-    <p class="text-muted">Welcome back, {{ current_user.name }}</p>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-0">Admin Dashboard</h3>
+        <p class="text-muted small mb-0">Welcome back, Admin</p>
+    </div>
 </div>
 
 <!-- Stats Cards -->
-<div class="row g-4 mb-5">
+<div class="row g-4 mb-4">
     <div class="col-md-4">
         <div class="card border-0 shadow-sm h-100 overflow-hidden">
             <div class="card-body p-4 position-relative">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
-                        <p class="text-uppercase fw-bold text-muted small mb-1">Doctors</p>
+                        <p class="text-uppercase fw-bold text-muted small mb-1">Total Doctors</p>
                         <h2 class="display-6 fw-bold text-primary mb-0">{{ total_doctors }}</h2>
                     </div>
                     <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-person-badge text-primary" viewBox="0 0 16 16">
-                            <path d="M6.5 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1h-3zM11 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
-                            <path d="M4.5 0A2.5 2.5 0 0 0 2 2.5V14a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2.5A2.5 2.5 0 0 0 11.5 0h-7zM3 2.5A1.5 1.5 0 0 1 4.5 1h7A1.5 1.5 0 0 1 13 2.5v10.795a4.2 4.2 0 0 0-.776-.492C11.392 12.387 10.063 12 8 12s-3.392.387-4.224.803a4.2 4.2 0 0 0-.776.492V2.5z"/>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-people-fill text-primary" viewBox="0 0 16 16">
+                            <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7Zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-5.784 6A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216ZM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/>
                         </svg>
                     </div>
                 </div>
@@ -29,18 +30,18 @@
             </div>
         </div>
     </div>
-    
+
     <div class="col-md-4">
         <div class="card border-0 shadow-sm h-100 overflow-hidden">
             <div class="card-body p-4 position-relative">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
-                        <p class="text-uppercase fw-bold text-muted small mb-1">Patients</p>
+                        <p class="text-uppercase fw-bold text-muted small mb-1">Total Patients</p>
                         <h2 class="display-6 fw-bold text-success mb-0">{{ total_patients }}</h2>
                     </div>
                     <div class="bg-success bg-opacity-10 p-3 rounded-circle">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-people text-success" viewBox="0 0 16 16">
-                            <path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8zm-7.978-1A.2.2 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002a.274.274 0 0 1-.014.002H7.022zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM6.936 9.28a5.88 5.88 0 0 0-1.23-.247A7.35 7.35 0 0 0 5 9c-4 0-5 3-5 4 0 .667.333 1 1 1h4.216A2.238 2.238 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816zM4.92 10A5.493 5.493 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275zM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0z"/>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-person-heart text-success" viewBox="0 0 16 16">
+                            <path d="M9 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-9 8c0 1 1 1 1 1h10s1 0 1-1-1-4-6-4-6 3-6 4Zm13.5-8.09c1.387-1.425 4.855 1.07 0 4.277-4.854-3.207-1.387-5.702 0-4.276Z"/>
                         </svg>
                     </div>
                 </div>
@@ -76,35 +77,43 @@
 
 <!-- Charts -->
 <div class="row g-4">
-    <!-- Appointments by Department -->
-    <div class="col-lg-8">
+    <!-- Doctors by Department -->
+    <div class="col-lg-4">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-white py-3 border-0">
-                <h5 class="card-title fw-bold mb-0">Appointments by Department</h5>
+                <h5 class="card-title fw-bold mb-0">Doctors by Department</h5>
             </div>
             <div class="card-body">
-                <canvas id="deptChart" style="max-height: 400px;"></canvas>
+                <div class="position-relative" style="height: 300px;">
+                    <canvas id="deptChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- User Status Distribution -->
+    <!-- Patient Status -->
     <div class="col-lg-4">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-white py-3 border-0">
-                <h5 class="card-title fw-bold mb-0">User Status</h5>
+                <h5 class="card-title fw-bold mb-0">Patient Status</h5>
             </div>
             <div class="card-body">
                 <div class="position-relative" style="height: 300px;">
-                    <canvas id="userStatusChart"></canvas>
+                    <canvas id="patientStatusChart"></canvas>
                 </div>
-                <div class="mt-4 text-center">
-                     <span class="badge rounded-pill bg-success bg-opacity-10 text-success mx-1 px-3 py-2">
-                        Active
-                     </span>
-                     <span class="badge rounded-pill bg-danger bg-opacity-10 text-danger mx-1 px-3 py-2">
-                        Blacklisted
-                     </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointment Status -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3 border-0">
+                <h5 class="card-title fw-bold mb-0">Appointment Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="position-relative" style="height: 300px;">
+                    <canvas id="apptStatusChart"></canvas>
                 </div>
             </div>
         </div>
@@ -114,84 +123,64 @@
 
 {% block scripts %}
 <script>
-    // Common Chart Options
+    // charts config
     Chart.defaults.font.family = "'Segoe UI', 'Helvetica Neue', 'Arial', sans-serif";
     Chart.defaults.color = '#6c757d';
-
-    // Appointments by Department
-    const deptCtx = document.getElementById('deptChart');
-    new Chart(deptCtx, {
-        type: 'bar',
-        data: {
-            labels: {{ dept_labels | default([]) | tojson }},
-            datasets: [{
-                label: 'Appointments',
-                data: {{ dept_data | default ([]) | tojson }},
-                backgroundColor: '#0d6efd',
-                borderRadius: 4,
-                barPercentage: 0.6,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        borderDash: [2, 4],
-                        color: '#e9ecef',
-                        drawBorder: false,
-                    },
-                    ticks: {
-                        stepSize: 1
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false,
-                        drawBorder: false,
-                    }
+    
+    const opts = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    usePointStyle: true,
+                    padding: 20
                 }
             }
         }
-    });
+    };
 
-    // User Status Chart
-    const statusCtx = document.getElementById('userStatusChart');
-    new Chart(statusCtx, {
-        type: 'doughnut',
+    // 1. doctors by dept
+    new Chart(document.getElementById('deptChart'), {
+        type: 'pie',
         data: {
-            labels: {{ user_status_labels | default([]) | tojson }},
+            labels: {{ dept_labels | default([]) | tojson }},
             datasets: [{
-                data: {{ user_status_data | default ([]) | tojson }},
-                backgroundColor: [
-                    '#198754', // Active - Success Color
-                    '#dc3545'  // Blacklisted - Danger Color
-                ],
-                borderWidth: 0,
-                hoverOffset: 4
+                data: {{ dept_data | default ([]) | tojson }},
+                backgroundColor: ['#0d6efd', '#6610f2', '#6f42c1', '#d63384', '#dc3545', '#fd7e14'],
+                borderWidth: 0
             }]
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        usePointStyle: true,
-                        padding: 20
-                    }
-                }
-            },
-            cutout: '70%'
-        }
+        options: opts
+    });
+
+    // 2. patient status
+    new Chart(document.getElementById('patientStatusChart'), {
+        type: 'pie',
+        data: {
+            labels: {{ patient_status_labels | default([]) | tojson }},
+            datasets: [{
+                data: {{ patient_status_data | default ([]) | tojson }},
+                backgroundColor: ['#198754', '#dc3545'],
+                borderWidth: 0
+            }]
+        },
+        options: opts
+    });
+
+    // 3. appt status
+    new Chart(document.getElementById('apptStatusChart'), {
+        type: 'pie',
+        data: {
+            labels: {{ appt_status_labels | default([]) | tojson }},
+            datasets: [{
+                data: {{ appt_status_data | default ([]) | tojson }},
+                backgroundColor: ['#ffc107', '#198754', '#dc3545'],
+                borderWidth: 0
+            }]
+        },
+        options: opts
     });
 </script>
 {% endblock %}

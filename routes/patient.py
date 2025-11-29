@@ -15,48 +15,67 @@ def require_patient():
 
 @patient.route('/dashboard')
 def dashboard():
-    appointments = Appointment.query.filter_by(patient_id=current_user.patient_profile.id)\
+    appts = Appointment.query.filter_by(patient_id=current_user.patient_profile.id)\
         .order_by(Appointment.appointment_start.desc()).all()
     
-    # Chart Data: Appointments over time (by month)
-    history_stats = db.session.query(func.strftime('%Y-%m', Appointment.appointment_start), func.count(Appointment.id))\
+    # get depts
+    departments = Department.query.all()
+    
+    # chart 1: monthly history
+    hist_stats = db.session.query(func.strftime('%Y-%m', Appointment.appointment_start), func.count(Appointment.id))\
         .filter(Appointment.patient_id == current_user.patient_profile.id)\
         .group_by(func.strftime('%Y-%m', Appointment.appointment_start))\
         .order_by(func.strftime('%Y-%m', Appointment.appointment_start)).all()
         
-    history_labels = [stat[0] for stat in history_stats]
-    history_data = [stat[1] for stat in history_stats]
+    h_labels = [s[0] for s in hist_stats]
+    h_data = [s[1] for s in hist_stats]
+    
+    # chart 2: status breakdown
+    status_stats = db.session.query(Appointment.status, db.func.count(Appointment.id))\
+        .filter(Appointment.patient_id == current_user.patient_profile.id)\
+        .group_by(Appointment.status).all()
+        
+    s_map = {s[0]: s[1] for s in status_stats}
+    s_labels = ['Booked', 'Completed', 'Cancelled']
+    s_data = [
+        s_map.get(AppointmentStatus.BOOKED, 0),
+        s_map.get(AppointmentStatus.COMPLETED, 0),
+        s_map.get(AppointmentStatus.CANCELLED, 0)
+    ]
     
     return render_template('dashboards/patient.html', 
-                         appointments=appointments,
-                         history_labels=history_labels,
-                         history_data=history_data)
+                         appointments=appts,
+                         departments=departments,
+                         history_labels=h_labels,
+                         history_data=h_data,
+                         status_labels=s_labels,
+                         status_data=s_data)
 
 @patient.route('/profile', methods=['GET', 'POST'])
 def profile():
     if request.method == 'POST':
         name = sanitize_input(request.form.get('name'))
         phone = sanitize_input(request.form.get('phone'))
-        address = sanitize_input(request.form.get('address'))
+        addr = sanitize_input(request.form.get('address'))
         gender = request.form.get('gender')
         dob_str = request.form.get('dob')
         
-        # Validate fields
+        # validate inputs
         try:
             validate_required_fields(request.form, ['name', 'phone'])
             validate_phone(phone)
             validate_gender(gender)
             
-            # Validate date of birth if provided
+            # validate dob
             if dob_str:
                 dob = validate_date(dob_str, allow_future=False)
-                # Check age is reasonable (not in future, not too old)
+                # sanity check for age
                 if dob.year < 1900:
                     raise ValidationError("Date of birth too far in the past")
                 current_user.patient_profile.dob = dob
             
-            # Validate address length
-            if address and len(address) > 200:
+            # check address length
+            if addr and len(addr) > 200:
                 raise ValidationError("Address must be at most 200 characters")
                 
         except ValidationError as e:
@@ -65,7 +84,7 @@ def profile():
         
         current_user.name = name
         current_user.patient_profile.phone = phone
-        current_user.patient_profile.address = address
+        current_user.patient_profile.address = addr
         current_user.patient_profile.gender = gender
         
         db.session.commit()
@@ -78,18 +97,27 @@ def profile():
 def doctors():
     search = request.args.get('search', '')
     dept_id = request.args.get('department_id')
+    avail_date = request.args.get('date')
     
-    query = User.query.join(DoctorProfile).filter(User.role == Role.DOCTOR)
+    q = User.query.join(DoctorProfile).filter(User.role == Role.DOCTOR)
     
     if search:
-        query = query.filter(User.name.ilike(f'%{search}%'))
+        q = q.filter(User.name.ilike(f'%{search}%'))
     if dept_id:
-        query = query.filter(DoctorProfile.department_id == dept_id)
+        q = q.filter(DoctorProfile.department_id == dept_id)
+    if avail_date:
+        # filter by availability date
+        try:
+            date_obj = datetime.strptime(avail_date, '%Y-%m-%d').date()
+            q = q.join(DoctorAvailability).filter(DoctorAvailability.date == date_obj)
+        except ValueError:
+            pass # ignore bad date
         
-    doctors = query.all()
+    doctors = q.all()
     departments = Department.query.all()
+    today = datetime.now().strftime('%Y-%m-%d')
     
-    return render_template('patient/doctors.html', doctors=doctors, departments=departments, search=search, selected_dept=dept_id)
+    return render_template('patient/doctors.html', doctors=doctors, departments=departments, search=search, selected_dept=dept_id, selected_date=avail_date, today=today)
 
 @patient.route('/book/<int:doctor_id>')
 def book_doctor(doctor_id):
@@ -110,12 +138,12 @@ def book_slot(slot_id):
     if not slot:
         return "Slot not found", 404
     
-    # Check if patient is blacklisted
+    # check blacklist
     if current_user.patient_profile.is_blacklisted:
         flash('Your account has been restricted. Please contact administrator.', 'danger')
         return redirect(url_for('patient.dashboard'))
     
-    # Validate reason
+    # validate reason
     reason = sanitize_input(request.form.get('reason'))
     try:
         validate_required_fields(request.form, ['reason'])
@@ -125,21 +153,28 @@ def book_slot(slot_id):
         flash(str(e), 'danger')
         return redirect(url_for('patient.book_doctor', doctor_id=slot.doctor.user_id))
         
-    # Check if slot is already booked (basic check)
-    existing = Appointment.query.filter_by(
-        doctor_id=slot.doctor_id,
-        appointment_start=datetime.combine(slot.date, slot.start_time)
-    ).first()
+    # check overlap
+    start_dt = datetime.combine(slot.date, slot.start_time)
+    end_dt = datetime.combine(slot.date, slot.end_time)
     
-    if existing and existing.status != AppointmentStatus.CANCELLED:
-        flash('This slot is already booked', 'warning')
+    existing = Appointment.query.filter_by(doctor_id=slot.doctor_id)\
+        .filter(Appointment.status != AppointmentStatus.CANCELLED)\
+        .filter(
+            db.and_(
+                Appointment.appointment_start < end_dt,
+                Appointment.appointment_end > start_dt
+            )
+        ).first()
+    
+    if existing:
+        flash('This slot overlaps with an existing appointment', 'warning')
         return redirect(url_for('patient.book_doctor', doctor_id=slot.doctor.user_id))
         
     appointment = Appointment(
         patient_id=current_user.patient_profile.id,
         doctor_id=slot.doctor_id,
-        appointment_start=datetime.combine(slot.date, slot.start_time),
-        appointment_end=datetime.combine(slot.date, slot.end_time),
+        appointment_start=start_dt,
+        appointment_end=end_dt,
         reason=reason,
         status=AppointmentStatus.BOOKED
     )
@@ -166,6 +201,25 @@ def cancel_appointment(id):
             flash('Appointment cancelled', 'success')
         else:
             flash('Cannot cancel this appointment', 'warning')
+    return redirect(url_for('patient.dashboard'))
+
+@patient.route('/appointments/<int:id>/reschedule', methods=['POST'])
+def reschedule_appointment(id):
+    appointment = db.session.get(Appointment, id)
+    if appointment and appointment.patient_id == current_user.patient_profile.id:
+        if appointment.status == AppointmentStatus.BOOKED:
+            # Store doctor ID to redirect
+            doctor_id = appointment.doctor.user.id
+            
+            # Cancel current appointment
+            appointment.status = AppointmentStatus.CANCELLED
+            appointment.canceled_by = 'PATIENT_RESCHEDULE'
+            db.session.commit()
+            
+            flash('Previous appointment cancelled. Please select a new time slot.', 'info')
+            return redirect(url_for('patient.book_doctor', doctor_id=doctor_id))
+        else:
+            flash('Cannot reschedule this appointment', 'warning')
     return redirect(url_for('patient.dashboard'))
 
 @patient.route('/history')

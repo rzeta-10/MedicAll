@@ -17,9 +17,9 @@ def login():
 
     if request.method == 'POST':
         email = sanitize_input(request.form.get('email'))
-        password = request.form.get('password')
+        pwd = request.form.get('password')
         
-        # Validate required fields
+        # basic validation
         try:
             validate_required_fields(request.form, ['email', 'password'])
             validate_email(email)
@@ -29,8 +29,9 @@ def login():
         
         user = User.query.filter_by(email=email).first()
         
-        if user and user.check_password(password):
+        if user and user.check_password(pwd):
             login_user(user)
+            # redirect based on role
             if user.role == Role.ADMIN:
                 return redirect(url_for('admin.dashboard'))
             elif user.role == Role.DOCTOR:
@@ -49,19 +50,20 @@ def register():
     if request.method == 'POST':
         email = sanitize_input(request.form.get('email'))
         name = sanitize_input(request.form.get('name'))
-        password = request.form.get('password')
+        pwd = request.form.get('password')
         phone = sanitize_input(request.form.get('phone'))
         
-        # Validate all fields
+        # validate inputs
         try:
             validate_required_fields(request.form, ['email', 'name', 'password', 'phone'])
             validate_email(email)
-            validate_password(password)
+            validate_password(pwd)
             validate_phone(phone)
         except ValidationError as e:
             flash(str(e), 'danger')
             return render_template('auth/register.html')
         
+        # check if user exists
         user = User.query.filter_by(email=email).first()
         if user:
             flash('Email already exists', 'danger')
@@ -72,12 +74,12 @@ def register():
             name=name,
             role=Role.PATIENT
         )
-        new_user.set_password(password)
+        new_user.set_password(pwd)
         
         db.session.add(new_user)
         db.session.commit()
         
-        # Create patient profile
+        # create patient profile
         profile = PatientProfile(user_id=new_user.id, phone=phone)
         db.session.add(profile)
         db.session.commit()

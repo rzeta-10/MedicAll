@@ -13,7 +13,7 @@
         <form method="GET" action="{{ url_for('admin.patients') }}" class="w-100" style="max-width: 400px;">
             <div class="input-group">
                 <span class="input-group-text bg-light border-0 text-muted ps-3"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg></span>
-                <input type="text" name="search" class="form-control bg-light border-0" placeholder="Search patients..." value="{{ search }}">
+                <input type="text" name="search" class="form-control bg-light border-0" placeholder="Search by name, ID, email, phone..." value="{{ search }}">
             </div>
         </form>
     </div>
@@ -25,7 +25,7 @@
                         <th class="ps-4 py-3 text-uppercase text-muted small fw-bold">Patient</th>
                         <th class="py-3 text-uppercase text-muted small fw-bold">Contact</th>
                         <th class="py-3 text-uppercase text-muted small fw-bold">Status</th>
-                        <th class="pe-4 py-3 text-end text-uppercase text-muted small fw-bold">Actions</th>
+                        <th class="pe-4 py-3 text-center text-uppercase text-muted small fw-bold">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -50,7 +50,8 @@
                             <span class="badge bg-success bg-opacity-10 text-success border border-success rounded-pill px-3">Active</span>
                             {% endif %}
                         </td>
-                        <td class="pe-4 py-3 text-end">
+                        <td class="pe-4 py-3 text-center">
+                            <a href="{{ url_for('admin.edit_patient', id=patient.id) }}" class="btn btn-sm btn-outline-dark rounded-pill me-1">Edit</a>
                             <form action="{{ url_for('admin.toggle_patient_status', id=patient.id) }}" method="POST" class="d-inline">
                                 <button type="submit" class="btn btn-sm {{ 'btn-outline-success' if patient.patient_profile.is_blacklisted else 'btn-outline-danger' }} rounded-pill">
                                     {{ 'Activate' if patient.patient_profile.is_blacklisted else 'Blacklist' }}

@@ -56,8 +56,8 @@ def validate_date(date_str, format='%Y-%m-%d', allow_future=False, allow_past=Tr
 def validate_required_fields(data, required_fields):
     missing = []
     for field in required_fields:
-        value = data.get(field)
-        if not value or (isinstance(value, str) and not value.strip()):
+        val = data.get(field)
+        if not val or (isinstance(val, str) and not val.strip()):
             missing.append(field)
     
     if missing:
