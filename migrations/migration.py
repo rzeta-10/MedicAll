@@ -154,11 +154,11 @@ def seed_database():
 
         if Appointment.query.count() < 10 and active_doctors and active_patients:
             
-            for _ in range(5):
-                doc = random.choice(active_doctors)
+            for i in range(5):
+                doc = active_doctors[i % len(active_doctors)]
                 pat = random.choice(active_patients)
                 past_date = today - timedelta(days=random.randint(1, 30))
-                start_time = time(random.randint(10, 19), 0)
+                start_time = time(10 + (i % 8), i % 4 * 15)
                 
                 appt = Appointment(
                     patient_id=pat.id,
@@ -180,11 +180,11 @@ def seed_database():
                 )
                 db.session.add(treat)
 
-            for _ in range(3):
-                doc = random.choice(active_doctors)
+            for i in range(3):
+                doc = active_doctors[i % len(active_doctors)]
                 pat = random.choice(active_patients)
                 d = today + timedelta(days=random.randint(-5, 5))
-                t = time(random.randint(10, 18), 30)
+                t = time(10 + (i % 8), i % 4 * 15)
                 
                 appt = Appointment(
                     patient_id=pat.id,
@@ -197,11 +197,11 @@ def seed_database():
                 )
                 db.session.add(appt)
 
-            for _ in range(5):
-                doc = random.choice(active_doctors)
+            for i in range(5):
+                doc = active_doctors[i % len(active_doctors)]
                 pat = random.choice(active_patients)
                 fut_date = today + timedelta(days=random.randint(1, 7))
-                t = time(random.randint(10, 12), 0)
+                t = time(10 + (i % 8), i % 4 * 15)
                 
                 appt = Appointment(
                     patient_id=pat.id,
