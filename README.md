@@ -4,6 +4,8 @@ MedicAll is a web-based Hospital Management System (HMS) designed to streamline 
 
 Built with simplicity and efficiency in mind using **Flask** and **Bootstrap**.
 
+**Live Demo**: [https://medicall-29b3.onrender.com](https://medicall-29b3.onrender.com)
+
 ---
 
 ## 🚀 Features
